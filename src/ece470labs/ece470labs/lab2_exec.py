@@ -41,6 +41,15 @@ TODO: Initialize Q matrix
 
 Q = [ [Q11, Q12, Q13], [Q21, Q22, Q23], [Q31, Q32, Q33] ]
 T = [ T1, T2, T3 ]
+
+for i in range(0, 3):
+    for j in range(0, 3):
+        for k in range(0, 6):
+            Q[i][j][k] = Q[i][j][k] * pi / 180.0
+
+    for j in range(0, 6):
+        T[i][j] = T[i][j] * pi / 180.0
+
 ############### Your Code End Here ###############
 class UR3e(Node):
     def __init__(self):
@@ -94,7 +103,7 @@ class UR3e(Node):
         called.
         """
 
-        for analog_in in msg:
+        for analog_in in msg.analog_in_states:
             if analog_in.pin == 0:
                 self.analog_in_0_value = analog_in.state
                 break
