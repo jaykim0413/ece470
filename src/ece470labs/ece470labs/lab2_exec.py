@@ -20,18 +20,22 @@ class JointAngles:
 home = np.radians([120, -90, 90, -90, -90, 0])
 
 # Hanoi tower location 
-Q11 = [120*pi/180.0, -56*pi/180.0, 124*pi/180.0, -158*pi/180.0, -90*pi/180.0, 0*pi/180.0]
-Q12 = [120*pi/180.0, -64*pi/180.0, 123*pi/180.0, -148*pi/180.0, -90*pi/180.0, 0*pi/180.0]
-Q13 = [120*pi/180.0, -72*pi/180.0, 120*pi/180.0, -137*pi/180.0, -90*pi/180.0, 0*pi/180.0]
+Q11 = [120, -58.61, 123.13, -154.52, -90.0, 0]
+Q12 = [120, -66.06, 121.90, -145.84, -89.99, 359.98]
+Q13 = [120, -72.84, 119.38, -136.54, -89.98, 359.97]
+Q21 = [142.16, -65.82, 142.47, -166.58, -90.03, 22.17]
+Q22 = [142.18, -77.17, 140.74, -153.51, -90.01, 22.15]
+Q23 = [142.19, -86.73, 137.42, -140.62, -90.0, 22.14]
+Q31 = [170.15, -64.72, 139.12, -164.26, -89.98, 50.16]
+Q32 = [170.16, -74.88, 137.58, -152.55, -89.97, 50.14]
+Q33 = [170.17, -84.33, 134.27, -139.79, -89.95, 50.12]
 
 ############## Your Code Start Here ##############
 """
 TODO: Initialize Q matrix
 """
 
-Q = [ [Q11, Q12, Q13], \
-      [Q11, Q12, Q13], \
-      [Q11, Q12, Q13] ]
+Q = [ [Q11, Q12, Q13], [Q21, Q22, Q23], [Q31, Q32, Q33] ]
 ############### Your Code End Here ###############
 class UR3e(Node):
     def __init__(self):
@@ -47,6 +51,7 @@ class UR3e(Node):
         # TODO: define a ROS subscriber for gripper input message and corresponding callback function
         # ROS2 gripper input topic: /io_and_status_controller/io_states
 
+        self.gripper_input_sub = self.create_subscription(IOStates, '/io_and_status_controller/io_states', self.io_state_callback, 10)
 
         ############### Your Code End Here ###############
 
@@ -78,13 +83,16 @@ class UR3e(Node):
     ############## Your Code Start Here ##############
         """
         TODO: define a ROS topic callback funtion that 
-        receives and stores the state of  the suction cup
+        receives and stores the state of the suction cup
         Whenever /io_and_status_controller/io_states 
         publishes this info, this callback function is
         called.
         """
 
-        pass
+        for analog_in in msg:
+            if analog_in.pin == 0:
+                self.analog_in_0_value = analog_in.state
+                break
 
     ############### Your Code End Here ###############
 
