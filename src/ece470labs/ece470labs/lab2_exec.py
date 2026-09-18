@@ -246,6 +246,8 @@ def main(args=None):
     ############## Your Code Start Here ##############
     # TODO: modify the code below so that program can get user input
     loop_count = 0
+    start_location = 0
+    dest_location = 0
     # Wait for initial state updates
     while node.current_joint_state is None:
         executor.spin_once(timeout_sec=0.05)
@@ -254,25 +256,42 @@ def main(args=None):
 
     try:
         # Get user input
-        input_string = input("Enter number of loops <Either 1 2 3 or 0 to quit> ")
-        print("You entered " + input_string + "\n")
+        start_location, dest_location = input("Enter the tower you will start at and want to move the blocks to: ").split(" ")
+        print("You want to move from " + start_location + " to " + dest_location + "\n")
 
-        if(int(input_string) == 1):
-            loop_count = 1
-        elif (int(input_string) == 2):
-            loop_count = 2
-        elif (int(input_string) == 3):
-            loop_count = 3
-        elif (int(input_string) == 0):
-            print("Quitting... ")
-            sys.exit()
+        start_location = int(start_location)
+        dest_location = int(dest_location)
+
+        if start_location > 2 or dest_location > 2 or start_location < 0 or dest_location < 0:
+            print("Enter values in the correct range")
+            loop_count = 0
+        elif start_location == dest_location:
+            print("Start Location and Destination must differ.")
+            loop_count = 0
         else:
-            print("Please just enter the character 1 2 3 or 0 to quit \n\n")
+            loop_count = 1
+
 
         ############## Your Code Start Here ##############
         # TODO: modify the code so that UR3e can move tower accordingly from user input
 
         while(loop_count > 0):
+            aux = 0
+            if start_location == 0:
+                if dest_location == 1:
+                    aux = 2
+                else:
+                    aux = 1
+            elif start_location == 1:
+                if dest_location == 0:
+                    aux = 2
+                else:
+                    aux = 0
+            else:
+                if dest_location == 0:
+                    aux = 1
+                else:
+                    aux = 0
 
             node.move_arm(home)
 
