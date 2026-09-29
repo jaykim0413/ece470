@@ -26,11 +26,11 @@ def Get_MS():
 
 	# Home Configuration
 	M = np.array([
-		[0,	-1,	0,	0.392],
-		[0,	0,	-1,	0.432],
-		[1, 0,	0,	0.2155],
-		[0,	0, 	0, 	1]
-	], dtype=float)
+		[0, -1, 0, 0.392],
+		[0, 0, -1, 0.432],
+		[1, 0, 0, 0.2155],
+		[0, 0, 0, 1]
+	])
 
 	# Screw Twist
 	q1 = np.array([-0.150, 0.150, 0.010])
@@ -40,12 +40,12 @@ def Get_MS():
 	q5 = np.array([q4[0], q4[1] + L6, q4[2]])
 	q6 = np.array([q5[0] + L7, q5[1] + L8, q5[2]])
 
-	w1 = np.array([0,0,1])
-	w2 = np.array([0,1,0])
-	w3 = np.array([0,1,0])
-	w4 = np.array([0,1,0])
-	w5 = np.array([1,0,0])
-	w6 = np.array([0,1,0])
+	w1 = np.array([0,0,1], dtype=float)
+	w2 = np.array([0,1,0], dtype=float)
+	w3 = np.array([0,1,0], dtype=float)
+	w4 = np.array([0,1,0], dtype=float)
+	w5 = np.array([1,0,0], dtype=float)
+	w6 = np.array([0,1,0], dtype=float)
 
 	v1 = -np.cross(w1, q1)
 	v2 = -np.cross(w2, q2)
@@ -68,6 +68,8 @@ def Get_MS():
 	S[3:6, 4] = v5
 	S[3:6, 5] = v6
 
+	print(str(S) + '\n')
+
 	# ==============================================================#
 	return M, S
 
@@ -85,11 +87,11 @@ def lab_fk(theta1, theta2, theta3, theta4, theta5, theta6):
 
 	# =================== Your code starts here ====================#
 	M, S = Get_MS()
-	theta = [theta1,theta2,theta3,theta4,theta5,theta6]
+	theta = np.array([theta1,theta2,theta3,theta4,theta5,theta6])
 
 	T = M
 	for i in range(5, -1, -1):
-		twist = S[0:6, 0].T
+		twist = S[0:6, i]
 		Si = twistToMat(s_twist=twist)
 
 		T = expm(Si * theta[i]) @ T
