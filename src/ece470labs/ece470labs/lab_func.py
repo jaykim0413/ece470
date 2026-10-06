@@ -30,45 +30,68 @@ def Get_MS():
 		[0, 0, -1, 0.432],
 		[1, 0, 0, 0.2155],
 		[0, 0, 0, 1]
-	])
+	], dtype=float)
 
 	# Screw Twist
-	q1 = np.array([-0.150, 0.150, 0.010])
-	q2 = np.array([q1[0], q1[1] + L2, q1[2] + L1])
-	q3 = np.array([q2[0] + L3, q2[1], q2[2]])
-	q4 = np.array([q3[0] + L5, q3[1] - L4, q3[2]])
-	q5 = np.array([q4[0], q4[1] + L6, q4[2]])
-	q6 = np.array([q5[0] + L7, q5[1] + L8, q5[2]])
+	q = np.zeros((6, 3), dtype=float)
+	w = np.zeros((6, 3), dtype=float)
+	v = np.zeros((6, 3), dtype=float)
 
-	w1 = np.array([0,0,1], dtype=float)
-	w2 = np.array([0,1,0], dtype=float)
-	w3 = np.array([0,1,0], dtype=float)
-	w4 = np.array([0,1,0], dtype=float)
-	w5 = np.array([1,0,0], dtype=float)
-	w6 = np.array([0,1,0], dtype=float)
+	q[0] = np.array([-0.150, 0.150, 0.010])
+	q[1] = np.array([q[0, 0], q[0, 1] + L2, q[0, 2] + L1])
+	q[2] = np.array([q[1, 0] + L3, q[1, 1], q[1, 2]])
+	q[3] = np.array([q[2, 0] + L5, q[2, 1] - L4, q[2, 2]])
+	q[4] = np.array([q[3, 0], q[3, 1] + L6, q[3, 2]])
+	q[5] = np.array([q[4, 0] + L7, q[4, 1] + L8, q[4, 2]])
 
-	v1 = -np.cross(w1, q1)
-	v2 = -np.cross(w2, q2)
-	v3 = -np.cross(w3, q3)
-	v4 = -np.cross(w4, q4)
-	v5 = -np.cross(w5, q5)
-	v6 = -np.cross(w6, q6)
+	w[0] = np.array([0,0,1], dtype=float)
+	w[1] = np.array([0,1,0], dtype=float)
+	w[2] = np.array([0,1,0], dtype=float)
+	w[3] = np.array([0,1,0], dtype=float)
+	w[4] = np.array([1,0,0], dtype=float)
+	w[5] = np.array([0,1,0], dtype=float)
 
-	S[0:3, 0] = w1
-	S[0:3, 1] = w2
-	S[0:3, 2] = w3
-	S[0:3, 3] = w4
-	S[0:3, 4] = w5
-	S[0:3, 5] = w6
+	for i in range(6):
+		v[i] = -np.cross(w[i], q[i])
 
-	S[3:6, 0] = v1
-	S[3:6, 1] = v2
-	S[3:6, 2] = v3
-	S[3:6, 3] = v4
-	S[3:6, 4] = v5
-	S[3:6, 5] = v6
+	for i in range(6):
+		S[0:3, i] = w[i]
+		S[3:6, i] = v[i]
 
-	print(str(S) + '\n')
+	# q1 = np.array([-0.150, 0.150, 0.010])
+	# q2 = np.array([q1[0], q1[1] + L2, q1[2] + L1])
+	# q3 = np.array([q2[0] + L3, q2[1], q2[2]])
+	# q4 = np.array([q3[0] + L5, q3[1] - L4, q3[2]])
+	# q5 = np.array([q4[0], q4[1] + L6, q4[2]])
+	# q6 = np.array([q5[0] + L7, q5[1] + L8, q5[2]])
+
+	# w1 = np.array([0,0,1], dtype=float)
+	# w2 = np.array([0,1,0], dtype=float)
+	# w3 = np.array([0,1,0], dtype=float)
+	# w4 = np.array([0,1,0], dtype=float)
+	# w5 = np.array([1,0,0], dtype=float)
+	# w6 = np.array([0,1,0], dtype=float)
+
+	# v1 = -np.cross(w1, q1)
+	# v2 = -np.cross(w2, q2)
+	# v3 = -np.cross(w3, q3)
+	# v4 = -np.cross(w4, q4)
+	# v5 = -np.cross(w5, q5)
+	# v6 = -np.cross(w6, q6)
+
+	# S[0:3, 0] = w1
+	# S[0:3, 1] = w2
+	# S[0:3, 2] = w3
+	# S[0:3, 3] = w4
+	# S[0:3, 4] = w5
+	# S[0:3, 5] = w6
+
+	# S[3:6, 0] = v1
+	# S[3:6, 1] = v2
+	# S[3:6, 2] = v3
+	# S[3:6, 3] = v4
+	# S[3:6, 4] = v5
+	# S[3:6, 5] = v6
 
 	# ==============================================================#
 	return M, S
