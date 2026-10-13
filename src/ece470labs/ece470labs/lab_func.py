@@ -18,7 +18,7 @@ L6 = 0.104
 L7 = 0.085
 L8 = 0.092
 L9 = 0.0535
-L10 = 0.058
+L10 = 0.059
 
 def Get_MS():
 	# =================== Your code starts here ====================#
@@ -133,7 +133,7 @@ def lab_invk(xWgrip, yWgrip, zWgrip, yaw_WgripDegree):
 	theta6 = 0.0
 
 	x_cen = x_grip - L9 * np.cos(yaw_rad)
-	y_cen = y_grip - L9 * np.cos(yaw_rad)
+	y_cen = y_grip - L9 * np.sin(yaw_rad)
 	z_cen = z_grip
 
 	theta1 = np.arctan2(y_cen, x_cen)- np.arcsin((L2-L4+L6)/np.sqrt(x_cen**2 + y_cen**2))
@@ -175,6 +175,8 @@ def lab_invk(xWgrip, yWgrip, zWgrip, yaw_WgripDegree):
 	theta5 = np.degrees(theta5)
 	theta6 = np.degrees(theta6)"""
 
+	theta2 = -theta2
+	theta4 = -theta4
 
 	# ==============================================================#
 	return lab_fk(theta1, theta2, theta3, theta4, theta5, theta6)
