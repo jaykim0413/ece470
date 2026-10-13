@@ -37,6 +37,7 @@ class UR3e(Node):
         # TODO: define a ROS subscriber for gripper input message and corresponding callback function
         # ROS2 gripper input topic: /io_and_status_controller/io_states
 
+        self.gripper_input_sub = self.create_subscription(IOStates, '/io_and_status_controller/io_states', self.io_state_callback, 10)
 
         ############### Your Code End Here ###############
 
@@ -65,18 +66,21 @@ class UR3e(Node):
 
 
     def io_state_callback(self, msg):
-    ############## Your Code Start Here ##############
-        """
-        TODO: define a ROS topic callback funtion that 
-        receives and stores the state of  the suction cup
-        Whenever /io_and_status_controller/io_states 
-        publishes this info, this callback function is
-        called.
-        """
-
-        pass
-
-    ############### Your Code End Here ###############
+        ############## Your Code Start Here ##############
+            """
+            TODO: define a ROS topic callback funtion that 
+            receives and stores the state of the suction cup
+            Whenever /io_and_status_controller/io_states 
+            publishes this info, this callback function is
+            called.
+            """
+    
+            for analog_in in msg.analog_in_states:
+                if analog_in.pin == 0:
+                    self.analog_in_0_value = analog_in.state
+                    break
+    
+        ############### Your Code End Here ###############
 
     def set_io(self, pin, state):
         req = SetIO.Request()

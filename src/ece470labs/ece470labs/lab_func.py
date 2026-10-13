@@ -17,6 +17,8 @@ L5 = 0.213
 L6 = 0.104
 L7 = 0.085
 L8 = 0.092
+L9 = 0.0535
+L10 = 0.058
 
 def Get_MS():
 	# =================== Your code starts here ====================#
@@ -57,41 +59,6 @@ def Get_MS():
 	for i in range(6):
 		S[0:3, i] = w[i]
 		S[3:6, i] = v[i]
-
-	# q1 = np.array([-0.150, 0.150, 0.010])
-	# q2 = np.array([q1[0], q1[1] + L2, q1[2] + L1])
-	# q3 = np.array([q2[0] + L3, q2[1], q2[2]])
-	# q4 = np.array([q3[0] + L5, q3[1] - L4, q3[2]])
-	# q5 = np.array([q4[0], q4[1] + L6, q4[2]])
-	# q6 = np.array([q5[0] + L7, q5[1] + L8, q5[2]])
-
-	# w1 = np.array([0,0,1], dtype=float)
-	# w2 = np.array([0,1,0], dtype=float)
-	# w3 = np.array([0,1,0], dtype=float)
-	# w4 = np.array([0,1,0], dtype=float)
-	# w5 = np.array([1,0,0], dtype=float)
-	# w6 = np.array([0,1,0], dtype=float)
-
-	# v1 = -np.cross(w1, q1)
-	# v2 = -np.cross(w2, q2)
-	# v3 = -np.cross(w3, q3)
-	# v4 = -np.cross(w4, q4)
-	# v5 = -np.cross(w5, q5)
-	# v6 = -np.cross(w6, q6)
-
-	# S[0:3, 0] = w1
-	# S[0:3, 1] = w2
-	# S[0:3, 2] = w3
-	# S[0:3, 3] = w4
-	# S[0:3, 4] = w5
-	# S[0:3, 5] = w6
-
-	# S[3:6, 0] = v1
-	# S[3:6, 1] = v2
-	# S[3:6, 2] = v3
-	# S[3:6, 3] = v4
-	# S[3:6, 4] = v5
-	# S[3:6, 5] = v6
 
 	# ==============================================================#
 	return M, S
@@ -152,6 +119,11 @@ Function that calculates an elbow up Inverse Kinematic solution for the UR3
 """
 def lab_invk(xWgrip, yWgrip, zWgrip, yaw_WgripDegree):
 	# =================== Your code starts here ====================#
+
+	x_grip = xWgrip + 0.150
+	y_grip = yWgrip - 0.150
+	z_grip = zWgrip - 0.010
+	yaw_rad = np.radians(yaw_WgripDegree)
 	
 	theta1 = 0.0
 	theta2 = 0.0
@@ -159,6 +131,31 @@ def lab_invk(xWgrip, yWgrip, zWgrip, yaw_WgripDegree):
 	theta4 = 0.0
 	theta5 = 0.0
 	theta6 = 0.0
-	
+
+	x_cen = x_grip - L9 * np.cos(yaw_rad)
+	y_cen = y_grip - L9 * np.cos(yaw_rad)
+	z_cen = z_grip
+
+	theta1 = np.arctan(x_cen/y_cen)- np.arcsin((L2-L4+L6)/np.sqrt(x_cen**2 + y_cen**2))
+	theta6 = np.pi / 2 + theta1 - yaw_rad
+
+
+	d = L6 + 27
+
+	x_3end = x_cen - L7*np.cos(theta1) + d*np.sin(theta1)
+	y_3end = y_cen - L7*np.sin(theta1) - d*np.cos(theta1)
+	z_3end = z_cen + L10 + L8
+
+	_3end = np.array([x_3end, y_3end, z_3end])
+	temp_length = np.linalg.norm(_3end- np.array([0,0,L1]))
+	angle1 = (temp_length**2 + L3**2 - L5**2)/(2*temp_length*L3)
+	angle2 = (L5**2 + L3**2 - temp_length**2)/(2*L5*L3)
+	angle3 = (L5**2 + temp_length**2 - L3**2)/(2*L5*temp_length)
+
+	theta2 = angle1 + np.sin(((z_3end-L1)/np.linalg.norm(_3end - np.array([0,0,L1]))))
+	theta3 = np.pi - angle2
+	theta4 = theta2 - theta3
+	theta5 = -np.pi/2
+
 	# ==============================================================#
 	return lab_fk(theta1, theta2, theta3, theta4, theta5, theta6)
