@@ -175,8 +175,5 @@ def lab_invk(xWgrip, yWgrip, zWgrip, yaw_WgripDegree):
 	theta5 = np.degrees(theta5)
 	theta6 = np.degrees(theta6)"""
 
-	theta2 = -theta2
-	theta4 = -theta4
-
 	# ==============================================================#
 	return lab_fk(theta1, theta2, theta3, theta4, theta5, theta6)

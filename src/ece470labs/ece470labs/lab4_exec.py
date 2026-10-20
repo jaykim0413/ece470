@@ -203,10 +203,10 @@ def main(args=None):
             print("Invalid number of input!\n")
             print("ros2 run ECE470lab lab4_exec xWgrip yWgrip zWgrip yaw_WgripDegree \n")
         else:
-            print("\nxWgrip: " + sys.argv[1] + ", yWgrip: " + sys.argv[2] + \
-                ", zWgrip: " + sys.argv[3] + ", yaw_WgripDegree: " + sys.argv[4] + "\n")
+            print("\nxWgrip: " + sys.argv[1] + ", yWgrip: " + sys.argv[2] + ", zWgrip: " + sys.argv[3] + ", yaw_WgripDegree: " + sys.argv[4] + "\n")
 
         new_dest = lab_invk(float(sys.argv[1]), float(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]))
+        # new_dest = np.radians([128.5537, -98.2412, 127.0003, -118.7591, -90, -51.4463])
         if not node.move_arm(new_dest):
             node.get_logger().error("Failed to move to goal")
      
