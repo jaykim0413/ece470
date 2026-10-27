@@ -6,14 +6,23 @@ import numpy as np
 # ========================= Student's code starts here =========================
 
 # Params for camera calibration
-theta = 0.0
-beta = 0.0
-tx = 0.0
-ty = 0.0
+theta = np.radians(1.8)
+beta = 650.1
+tx = -0.11
+ty = -0.15
 
 # Function that converts image coord to world coord
 def IMG2W(col, row):
-    pass
+    c, s = np.cos(theta), np.sin(theta)
+    R_z = np.array([
+        [c, -s, 0], 
+        [s, c, 0], 
+        [0,0,1]
+    ])
+
+    Temp = np.array([col, row, 0])
+    Temp = Temp @ R_z + np.array([tx, ty, 0])
+    return Temp
 
 # ========================= Student's code ends here ===========================
 
@@ -30,8 +39,8 @@ def blob_search(image_raw, color):
 
     # Filter by Area.
     params.filterByArea = True
-    params.minArea = 361
-    params.maxArea = 529
+    params.minArea = 300
+    params.maxArea = 700
 
     # Filter by Circularity
     params.filterByCircularity = True
@@ -54,21 +63,19 @@ def blob_search(image_raw, color):
 
     # ========================= Student's code starts here =========================
 
-    lower = (110,50,50)     # blue lower
-    upper = (130,255,255)   # blue upper
-
-    green = [
-        (50, 100, 70),
-        (70, 255, 255)
-    ]
-
-    yellow = [
-        (20, 100, 100),
-        (35, 255, 255)
-    ]
+    color_ranges = {
+        "green": [
+            (50, 100, 70),
+            (70, 255, 255)
+        ],
+        "yellow": [
+            (20, 100, 100),
+            (35, 255, 255)
+        ]
+    }
 
     # Define a mask using the lower and upper bounds of the target color
-    mask_image = cv2.inRange(hsv_image, green[0], green[1])
+    mask_image = cv2.inRange(hsv_image, color_ranges[color][0], color_ranges[color][1])
 
     # ========================= Student's code ends here ===========================
 
@@ -83,7 +90,7 @@ def blob_search(image_raw, color):
     # ========================= Student's code starts here =========================
 
     # Draw the keypoints on the detected block
-    im_with_keypoints = cv2.drawKeypoints(image_raw, keypoints, )
+    im_with_keypoints = cv2.drawKeypoints(image_raw, keypoints, np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     # ========================= Student's code ends here ===========================
 
