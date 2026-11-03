@@ -30,6 +30,11 @@ home = np.radians([120, -90, 90, -90, -90, 0])
 # Position for UR3 not blocking the camera
 go_away = [270*pi/180.0, -90*pi/180.0, 90*pi/180.0, -90*pi/180.0, -90*pi/180.0, 135*pi/180.0]
 
+STACKS = {
+    "green": {"xy": (0.30, 0.20), "h": 0.031},
+    "yellow": {"xy": (0.30, 0.30), "h": 0.032}
+}
+
 class UR3e(Node):
     def __init__(self):
         super().__init__('ur3e')
@@ -182,13 +187,44 @@ class UR3e(Node):
                 return True
         return False
 
+    def wait(self, sec):
+        end = time.monotonic() + sec
+        while time.monotonic() < end:
+            rclpy.spin_once(self, timeout_sec=0.05)
 
-    def move_block_vision(self, start_xy, target_xyz):
+    def move_block_vision(self, start_xy, target_xyz, block_h):
         """TODO: Pick block at start_xy and place it at target_xy, both in world frame.
         Hint: You can use your existing lab_invk, move_arm and set_io to pick and place a block.
         """
         # ========================= Student's code starts here =========================
-        pass
+        TRAVEL_Z = max(0.15, target_xyz[2] + 0.05)
+        PICK_Z = block_h
+
+        def go(x, y, z):
+            self.move_arm(lab_invk(x, y, z, 0.0))
+
+            x0, y0 = float(start_xy[0], start_xy[1])
+            x1, y1, z1 = (float(v) for v in target_xyz)
+
+            if not go(x0, y0, TRAVEL_Z) or not go(x0, y0, PICK_Z):
+                return False
+
+            self.set_io(0, 1.0)
+            self.wait(1.0)
+
+            if self.analog_in_0_value <= 2.0:
+                self.set_io(0, 0.0)
+                go(x0, y0, TRAVEL_Z)
+                return False
+
+            if not go(x0, y0, TRAVEL_Z) or not go(x1, y1, TRAVEL_Z) or not go(x1, y1, z1):
+                self.set_io(0, 0.0)
+                return False
+
+            self.set_io(0, 0.0)
+            self.wait(0.1)
+            go(x1, y1, TRAVEL_Z)
+            return True
         # ========================= Student's code ends here =========================
 
 
@@ -218,11 +254,9 @@ def main(args=None):
             rclpy.spin_once(node, timeout_sec=0.1)
 
         # Snapshot once 
-        green_snapshot = list(node.green_blocks)
-        node.get_logger().info(f"Snapshot green blocks: {green_snapshot}")
-
-        yellow_snapshot = list(node.yellow_blocks)
-        node.get_logger().info(f"Snapshot yellow blocks: {yellow_snapshot}")
+        snapshots = {"green": list(node.green_blocks), "yellow": list(node.yellow_blocks)}
+        node.get_logger().info(f"Snapshot green blocks: {snapshots['green']}")
+        node.get_logger().info(f"Snapshot yellow blocks: {snapshots['yellow']}")
 
         # Execute task once based on snapshot
         # ========================= Student's code starts here =========================
@@ -234,6 +268,18 @@ def main(args=None):
         the block you want to move, and target_xyz is the world coordinate of where you want to place it 
         (you can set z based on your needs).
         """
+
+        for color, cfg in STACKS.items():
+            (sx, sy), h = cfg["xy"], cfg["h"]
+            level = 0
+            for i, (bx, by) in enumerate(snapshots[color]):
+                target = (sx, sy, (level + 1) * h)
+                if node.move_block_vision((bx, by), target, h):
+                    level += 1
+                else:
+                    node.get_logger().error(
+                        f"Missing {color} block #{i + 1} at ({bx:.3f}, {by:.3f}); skipping")
+
 
         # ========================= Student's code ends here ===========================
 
