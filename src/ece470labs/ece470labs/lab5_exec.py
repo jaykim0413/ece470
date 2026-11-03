@@ -201,14 +201,13 @@ class UR3e(Node):
         PICK_Z = block_h
 
         def go(x, y, z):
-            self.move_arm(lab_invk(x, y, z, 0.0))
+            return self.move_arm(lab_invk(x, y, z, 0.0))
 
         x0, y0 = float(start_xy[0]), float(start_xy[1])
         x1, y1, z1 = (float(v) for v in target_xyz)
 
-        if not go(x0, y0, TRAVEL_Z):
-            if not go(x0, y0, PICK_Z):
-                return False
+        if not go(x0, y0, TRAVEL_Z) or not go(x0, y0, PICK_Z):
+            return False
 
         self.set_io(0, 1.0)
         self.wait(1.0)
