@@ -221,6 +221,9 @@ def main(args=None):
         green_snapshot = list(node.green_blocks)
         node.get_logger().info(f"Snapshot green blocks: {green_snapshot}")
 
+        yellow_snapshot = list(node.yellow_blocks)
+        node.get_logger().info(f"Snapshot yellow blocks: {yellow_snapshot}")
+
         # Execute task once based on snapshot
         # ========================= Student's code starts here =========================
 
