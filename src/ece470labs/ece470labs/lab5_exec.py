@@ -31,8 +31,8 @@ home = np.radians([120, -90, 90, -90, -90, 0])
 go_away = [270*pi/180.0, -90*pi/180.0, 90*pi/180.0, -90*pi/180.0, -90*pi/180.0, 135*pi/180.0]
 
 STACKS = {
-    "green": {"xy": (0.30, 0.20), "h": 0.031},
-    "yellow": {"xy": (0.30, 0.30), "h": 0.032}
+    "green": {"xy": (0.30, 0.20), "h": 0.025},
+    "yellow": {"xy": (0.30, 0.30), "h": 0.026}
 }
 
 class UR3e(Node):
@@ -203,28 +203,29 @@ class UR3e(Node):
         def go(x, y, z):
             self.move_arm(lab_invk(x, y, z, 0.0))
 
-            x0, y0 = float(start_xy[0], start_xy[1])
-            x1, y1, z1 = (float(v) for v in target_xyz)
+        x0, y0 = float(start_xy[0]), float(start_xy[1])
+        x1, y1, z1 = (float(v) for v in target_xyz)
 
-            if not go(x0, y0, TRAVEL_Z) or not go(x0, y0, PICK_Z):
+        if not go(x0, y0, TRAVEL_Z):
+            if not go(x0, y0, PICK_Z):
                 return False
 
-            self.set_io(0, 1.0)
-            self.wait(1.0)
+        self.set_io(0, 1.0)
+        self.wait(1.0)
 
-            if self.analog_in_0_value <= 2.0:
-                self.set_io(0, 0.0)
-                go(x0, y0, TRAVEL_Z)
-                return False
-
-            if not go(x0, y0, TRAVEL_Z) or not go(x1, y1, TRAVEL_Z) or not go(x1, y1, z1):
-                self.set_io(0, 0.0)
-                return False
-
+        if self.analog_in_0_value <= 2.0:
             self.set_io(0, 0.0)
-            self.wait(0.1)
-            go(x1, y1, TRAVEL_Z)
-            return True
+            go(x0, y0, TRAVEL_Z)
+            return False
+
+        if not go(x0, y0, TRAVEL_Z) or not go(x1, y1, TRAVEL_Z) or not go(x1, y1, z1):
+            self.set_io(0, 0.0)
+            return False
+
+        self.set_io(0, 0.0)
+        self.wait(0.5)
+        go(x1, y1, TRAVEL_Z)
+        return True
         # ========================= Student's code ends here =========================
 
 
@@ -257,6 +258,8 @@ def main(args=None):
         snapshots = {"green": list(node.green_blocks), "yellow": list(node.yellow_blocks)}
         node.get_logger().info(f"Snapshot green blocks: {snapshots['green']}")
         node.get_logger().info(f"Snapshot yellow blocks: {snapshots['yellow']}")
+
+        node.move_arm(home)
 
         # Execute task once based on snapshot
         # ========================= Student's code starts here =========================
