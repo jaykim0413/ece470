@@ -8,22 +8,20 @@ import numpy as np
 # Params for camera calibration
 theta = np.radians(1.8)
 beta = 650.1
-tx = -0.11
-ty = -0.15
+tx = -0.034
+ty = -0.188
 
 # Function that converts image coord to world coord
 def IMG2W(col, row):
+    O_r, O_c = 240, 320
+    x_c = (row - O_r) / beta
+    y_c = (col - O_c) / beta
+
     c, s = np.cos(theta), np.sin(theta)
-    R_z = np.array([
-        [c, -s, 0], 
-        [s, c, 0], 
-        [0,0,1]
-    ])
-
-    Temp = np.array([col, row, 0])
-    Temp = Temp @ R_z + np.array([tx, ty, 0])
-    return Temp
-
+    R_cw = np.array([[c, -s],
+                     [s,  c]])
+    x_w, y_w = R_cw.T @ (np.array([x_c, y_c]) - np.array([tx, ty]))
+    return (x_w, y_w)
 # ========================= Student's code ends here ===========================
 
 def blob_search(image_raw, color):
@@ -64,10 +62,7 @@ def blob_search(image_raw, color):
     # ========================= Student's code starts here =========================
 
     color_ranges = {
-        "green": [
-            (50, 100, 70),
-            (70, 255, 255)
-        ],
+        "green": [(63, 70, 35), (85, 255, 255)],
         "yellow": [
             (20, 100, 100),
             (35, 255, 255)
