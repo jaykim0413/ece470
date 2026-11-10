@@ -31,9 +31,12 @@ home = np.radians([120, -90, 90, -90, -90, 0])
 go_away = [270*pi/180.0, -90*pi/180.0, 90*pi/180.0, -90*pi/180.0, -90*pi/180.0, 135*pi/180.0]
 
 STACKS = {
-    "green": {"xy": (0.30, 0.20), "h": 0.025},
-    "yellow": {"xy": (0.30, 0.30), "h": 0.026}
+    "green":  {"xy": (0.30, 0.20), "h": 0.031},   # real block heights
+    "yellow": {"xy": (0.30, 0.30), "h": 0.032},
 }
+Z_OFF = -0.005    # how far the cup presses past the block's top face (m)
+TRAVEL_MIN = 0.20   # lowest travel height (m)
+CLEARANCE  = 0.05   # gap between carried block's bottom and stack top (m)
 
 class UR3e(Node):
     def __init__(self):
@@ -197,11 +200,16 @@ class UR3e(Node):
         Hint: You can use your existing lab_invk, move_arm and set_io to pick and place a block.
         """
         # ========================= Student's code starts here =========================
-        TRAVEL_Z = max(0.15, target_xyz[2] + 0.05)
-        PICK_Z = block_h
+        TRAVEL_Z = max(TRAVEL_MIN, target_xyz[2] + block_h + CLEARANCE)
 
         def go(x, y, z):
-            return self.move_arm(lab_invk(x, y, z, 0.0))
+            q = lab_invk(x, y, z, 0.0)
+            if np.any(np.isnan(q)):
+                self.get_logger().error(f"Unreachable: ({x:.3f}, {y:.3f}, {z:.3f})")
+                return False
+            return self.move_arm(q)
+        
+        PICK_Z = block_h + Z_OFF
 
         x0, y0 = float(start_xy[0]), float(start_xy[1])
         x1, y1, z1 = (float(v) for v in target_xyz)
@@ -226,9 +234,6 @@ class UR3e(Node):
         go(x1, y1, TRAVEL_Z)
         return True
         # ========================= Student's code ends here =========================
-
-
-
 
 def main(args=None):
     input("Check if the UR3e is in 'Remote' Mode?\n\
@@ -275,12 +280,11 @@ def main(args=None):
             (sx, sy), h = cfg["xy"], cfg["h"]
             level = 0
             for i, (bx, by) in enumerate(snapshots[color]):
-                target = (sx, sy, (level + 1) * h)
+                target = (sx, sy, (level + 1) * h + Z_OFF)
                 if node.move_block_vision((bx, by), target, h):
                     level += 1
                 else:
-                    node.get_logger().error(
-                        f"Missing {color} block #{i + 1} at ({bx:.3f}, {by:.3f}); skipping")
+                    node.get_logger().error(f"Missing {color} block #{i + 1} at ({bx:.3f}, {by:.3f}); skipping")
 
 
         # ========================= Student's code ends here ===========================

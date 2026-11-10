@@ -7,9 +7,9 @@ import numpy as np
 
 # Params for camera calibration
 theta = np.radians(1.8)
-beta = 650.1
-tx = -0.034
-ty = -0.188
+beta = 660.0
+tx = -0.124
+ty = -0.095
 
 # Function that converts image coord to world coord
 def IMG2W(col, row):
@@ -41,9 +41,9 @@ def blob_search(image_raw, color):
     params.maxArea = 700
 
     # Filter by Circularity
-    params.filterByCircularity = True
+    params.filterByCircularity = False
     params.minCircularity = 0.5
-    params.maxCircularity = 0.85
+    params.maxCircularity = 0.9
 
     # Filter by Inerita
     params.filterByInertia = False
@@ -92,7 +92,7 @@ def blob_search(image_raw, color):
     xw_yw = []
 
     if(num_blobs == 0):
-        print("No block found!")
+        pass
     else:
         # Convert image coordinates to global world coordinate using IM2W() function
         for i in range(num_blobs):
